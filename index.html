@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteggio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        input {
+            padding: 5px;
+            font-size: 16px;
+            margin: 10px 0;
+            width: 200px;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sorteggio Nomi</h1>
+    <p>Inserisci il tuo nome per evitare di essere sorteggiato:</p>
+    <input type="text" id="userName" placeholder="Inserisci il tuo nome">
+    <button id="escludiButton">Escludi Nome</button>
+    <p>Clicca sul bottone per sorteggiare un nome (un solo tentativo a persona):</p>
+    <button id="sorteggiaButton">Sorteggia</button>
+    <div id="output"></div>
+
+    <script>
+        // Elenco dei nomi
+        const nomi = [
+            "Beatrice", "Marco", "Federico", "Salvatore", "Federica",
+            "Alessio", "Valentina", "Livia", "Cristina",
+            "Alessandro", "Manola", "Valeria", "Pierluigi", "Samanta", "Veronica"
+        ];
+
+        // Array per tracciare i nomi da sorteggiare
+        let nomiRimanenti = [...nomi];
+        // Flag per verificare se l'utente ha già estratto
+        let tentativoEffettuato = false;
+
+        // Verifica se l'utente ha già effettuato l'estrazione
+        if (localStorage.getItem("userName") && localStorage.getItem("estrazioneEffettuata") === "true") {
+            document.getElementById("sorteggiaButton").disabled = true;
+            document.getElementById("output").textContent = "Hai già effettuato un'estrazione!";
+        }
+
+        // Bottone per escludere il nome
+        document.getElementById("escludiButton").addEventListener("click", () => {
+            const userName = document.getElementById("userName").value.trim();
+
+            if (userName === "") {
+                alert("Per favore, inserisci un nome valido.");
+                return;
+            }
+
+            const index = nomiRimanenti.indexOf(userName);
+            if (index !== -1) {
+                nomiRimanenti.splice(index, 1);
+                alert(`Il nome "${userName}" è stato escluso dal sorteggio.`);
+            } else {
+                alert(`Il nome "${userName}" non era nell'elenco o è già stato sorteggiato.`);
+            }
+
+            console.log("Nomi rimanenti:", nomiRimanenti); // Debug
+        });
+
+        // Bottone per sorteggiare un nome
+        document.getElementById("sorteggiaButton").addEventListener("click", () => {
+            const userName = document.getElementById("userName").value.trim();
+
+            if (!userName) {
+                alert("Per favore, inserisci il tuo nome!");
+                return;
+            }
+
+            // Verifica se l'utente ha già effettuato un tentativo
+            if (localStorage.getItem("userName") === userName && localStorage.getItem("estrazioneEffettuata") === "true") {
+                alert("Hai a disposizione una sola estrazione!");
+                return;
+            }
+
+            if (nomiRimanenti.length === 0) {
+                document.getElementById("output").textContent = "Tutti i nomi sono stati sorteggiati!";
+                return;
+            }
+
+            // Sorteggia un nome casuale
+            const indiceCasuale = Math.floor(Math.random() * nomiRimanenti.length);
+            const nomeSorteggiato = nomiRimanenti[indiceCasuale];
+
+            // Mostra il nome sorteggiato
+            document.getElementById("output").textContent = `Nome sorteggiato: ${nomeSorteggiato}`;
+
+            // Rimuovi il nome dall'elenco
+            nomiRimanenti.splice(indiceCasuale, 1);
+
+            // Salva il nome dell'utente e lo stato dell'estrazione nel localStorage
+            localStorage.setItem("userName", userName);
+            localStorage.setItem("estrazioneEffettuata", "true");
+
+            // Disabilita il bottone dopo l'estrazione
+            document.getElementById("sorteggiaButton").disabled = true;
+        });
+    </script>
+</body>
+</html>
