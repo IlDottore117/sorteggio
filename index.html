@@ -4,114 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sorteggio</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        input {
-            padding: 5px;
-            font-size: 16px;
-            margin: 10px 0;
-            width: 200px;
-        }
-        #output {
-            margin-top: 20px;
-            font-size: 20px;
-            font-weight: bold;
-        }
-    </style>
 </head>
 <body>
-    <h1>Sorteggio Nomi</h1>
+    <h1>Sorteggio</h1>
     <p>Inserisci il tuo nome per evitare di essere sorteggiato:</p>
-    <input type="text" id="userName" placeholder="Inserisci il tuo nome">
-    <button id="escludiButton">Escludi Nome</button>
-    <p>Clicca sul bottone per sorteggiare un nome (un solo tentativo a persona):</p>
-    <button id="sorteggiaButton">Sorteggia</button>
-    <div id="output"></div>
-
+    <input type="text" id="nomeUtente" placeholder="Il tuo nome">
+    <button id="sorteggia">Sorteggia un nome</button>
+    <p id="risultato"></p>
     <script>
-        // Elenco dei nomi
+        // Lista aggiornata dei nomi
         const nomi = [
             "Beatrice", "Marco", "Federico", "Salvatore", "Federica",
             "Alessio", "Valentina", "Livia", "Cristina",
-            "Alessandro", "Manola", "Valeria", "Pierluigi", "Samanta", "Veronica"
+            "Alessandro", "Manola", "Valeria", "Pierluigi", "Dario"
         ];
 
-        // Array per tracciare i nomi da sorteggiare
-        let nomiRimanenti = [...nomi];
-        // Flag per verificare se l'utente ha già estratto
-        let tentativoEffettuato = false;
+        let estratti = JSON.parse(localStorage.getItem('estratti')) || [];
+        let nomeUtente = localStorage.getItem('utenteNome') || "";
 
-        // Verifica se l'utente ha già effettuato l'estrazione
-        if (localStorage.getItem("userName") && localStorage.getItem("estrazioneEffettuata") === "true") {
-            document.getElementById("sorteggiaButton").disabled = true;
-            document.getElementById("output").textContent = "Hai già effettuato un'estrazione!";
-        }
+        document.getElementById("nomeUtente").value = nomeUtente;
 
-        // Bottone per escludere il nome
-        document.getElementById("escludiButton").addEventListener("click", () => {
-            const userName = document.getElementById("userName").value.trim();
-
-            if (userName === "") {
-                alert("Per favore, inserisci un nome valido.");
+        document.getElementById("sorteggia").addEventListener("click", () => {
+            const nomeInput = document.getElementById("nomeUtente").value.trim();
+            
+            if (!nomeInput) {
+                alert("Per favore, inserisci il tuo nome.");
                 return;
             }
 
-            const index = nomiRimanenti.indexOf(userName);
-            if (index !== -1) {
-                nomiRimanenti.splice(index, 1);
-                alert(`Il nome "${userName}" è stato escluso dal sorteggio.`);
-            } else {
-                alert(`Il nome "${userName}" non era nell'elenco o è già stato sorteggiato.`);
+            if (!nomeUtente) {
+                nomeUtente = nomeInput;
+                localStorage.setItem("utenteNome", nomeUtente);
             }
 
-            console.log("Nomi rimanenti:", nomiRimanenti); // Debug
-        });
-
-        // Bottone per sorteggiare un nome
-        document.getElementById("sorteggiaButton").addEventListener("click", () => {
-            const userName = document.getElementById("userName").value.trim();
-
-            if (!userName) {
-                alert("Per favore, inserisci il tuo nome!");
+            if (nomeUtente !== nomeInput) {
+                alert("Il nome non corrisponde a quello della sessione. Ricarica la pagina per resettare.");
                 return;
             }
 
-            // Verifica se l'utente ha già effettuato un tentativo
-            if (localStorage.getItem("userName") === userName && localStorage.getItem("estrazioneEffettuata") === "true") {
-                alert("Hai a disposizione una sola estrazione!");
+            if (estratti.includes(nomeUtente)) {
+                document.getElementById("risultato").innerText = "Hai a disposizione una sola estrazione!";
                 return;
             }
 
-            if (nomiRimanenti.length === 0) {
-                document.getElementById("output").textContent = "Tutti i nomi sono stati sorteggiati!";
+            const nomiDisponibili = nomi.filter(nome => nome !== nomeUtente && !estratti.includes(nome));
+
+            if (nomiDisponibili.length === 0) {
+                document.getElementById("risultato").innerText = "Tutti i nomi sono stati estratti!";
                 return;
             }
 
-            // Sorteggia un nome casuale
-            const indiceCasuale = Math.floor(Math.random() * nomiRimanenti.length);
-            const nomeSorteggiato = nomiRimanenti[indiceCasuale];
+            const sorteggiato = nomiDisponibili[Math.floor(Math.random() * nomiDisponibili.length)];
+            estratti.push(sorteggiato);
+            localStorage.setItem("estratti", JSON.stringify(estratti));
 
-            // Mostra il nome sorteggiato
-            document.getElementById("output").textContent = `Nome sorteggiato: ${nomeSorteggiato}`;
-
-            // Rimuovi il nome dall'elenco
-            nomiRimanenti.splice(indiceCasuale, 1);
-
-            // Salva il nome dell'utente e lo stato dell'estrazione nel localStorage
-            localStorage.setItem("userName", userName);
-            localStorage.setItem("estrazioneEffettuata", "true");
-
-            // Disabilita il bottone dopo l'estrazione
-            document.getElementById("sorteggiaButton").disabled = true;
+            document.getElementById("risultato").innerText = `Nome sorteggiato: ${sorteggiato}`;
         });
     </script>
 </body>
