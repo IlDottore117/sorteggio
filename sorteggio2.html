@@ -27,8 +27,9 @@
             drawButton.addEventListener('click', () => {
                 const userName = userNameInput.value.trim();
 
+                // Controllo per input vuoto
                 if (!userName) {
-                    resultDiv.textContent = "Inserisci il tuo nome prima di procedere!";
+                    resultDiv.textContent = "Errore: Inserisci il tuo nome prima di procedere!";
                     return;
                 }
 
