@@ -33,13 +33,20 @@
                     return;
                 }
 
+                // Verifica che il nome sia nella lista
+                const nameMatch = names.some(name => name.toLowerCase() === userName.toLowerCase());
+                if (!nameMatch) {
+                    resultDiv.textContent = "Errore: Nome non valido o non presente nella lista!";
+                    return;
+                }
+
                 if (drawnNames.has(userName)) {
                     resultDiv.textContent = "Hai a disposizione una sola estrazione!";
                     return;
                 }
 
                 // Escludi il nome dell'utente dall'elenco dei sorteggiabili
-                const availableNames = names.filter(name => name !== userName && !drawnNames.has(name));
+                const availableNames = names.filter(name => name.toLowerCase() !== userName.toLowerCase() && !drawnNames.has(name));
 
                 if (availableNames.length === 0) {
                     resultDiv.textContent = "Tutti i nomi sono stati estratti!";
