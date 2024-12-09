@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteggio2</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lista dei nomi aggiornati
+            const names = [
+                "Cinzia", "Claudio", "Daniele", "Fabio", "Anna",
+                "Denis", "Ryan", "Eleonora", "Federico", "Cristian", "Deborah"
+            ];
+
+            const drawnNames = new Set();
+            const userNameInput = document.getElementById('user-name');
+            const resultDiv = document.getElementById('result');
+            const drawButton = document.getElementById('draw-button');
+
+            // Verifica se l'utente ha già effettuato un'estrazione
+            const alreadyDrawn = localStorage.getItem('hasDrawnSorteggio2');
+            if (alreadyDrawn === 'true') {
+                resultDiv.textContent = "Hai già effettuato un'estrazione!";
+                drawButton.disabled = true;
+            }
+
+            drawButton.addEventListener('click', () => {
+                const userName = userNameInput.value.trim();
+
+                if (!userName) {
+                    resultDiv.textContent = "Inserisci il tuo nome prima di procedere!";
+                    return;
+                }
+
+                if (drawnNames.has(userName)) {
+                    resultDiv.textContent = "Hai a disposizione una sola estrazione!";
+                    return;
+                }
+
+                // Escludi il nome dell'utente dall'elenco dei sorteggiabili
+                const availableNames = names.filter(name => name !== userName && !drawnNames.has(name));
+
+                if (availableNames.length === 0) {
+                    resultDiv.textContent = "Tutti i nomi sono stati estratti!";
+                    return;
+                }
+
+                const randomIndex = Math.floor(Math.random() * availableNames.length);
+                const drawnName = availableNames[randomIndex];
+
+                drawnNames.add(userName);
+                localStorage.setItem('hasDrawnSorteggio2', 'true');
+                resultDiv.textContent = `Hai sorteggiato: ${drawnName}`;
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Sorteggio2</h1>
+    <p>Inserisci il tuo nome:</p>
+    <input type="text" id="user-name" placeholder="Il tuo nome">
+    <button id="draw-button">Sorteggia</button>
+    <div id="result"></div>
+</body>
+</html>
