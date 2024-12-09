@@ -34,8 +34,10 @@
                 }
 
                 // Verifica che il nome sia nella lista
-                const nameMatch = names.some(name => name.toLowerCase() === userName.toLowerCase());
-                if (!nameMatch) {
+                const normalizedNames = names.map(name => name.toLowerCase());
+                const normalizedUserName = userName.toLowerCase();
+
+                if (!normalizedNames.includes(normalizedUserName)) {
                     resultDiv.textContent = "Errore: Nome non valido o non presente nella lista!";
                     return;
                 }
@@ -46,7 +48,7 @@
                 }
 
                 // Escludi il nome dell'utente dall'elenco dei sorteggiabili
-                const availableNames = names.filter(name => name.toLowerCase() !== userName.toLowerCase() && !drawnNames.has(name));
+                const availableNames = names.filter(name => name.toLowerCase() !== normalizedUserName && !drawnNames.has(name));
 
                 if (availableNames.length === 0) {
                     resultDiv.textContent = "Tutti i nomi sono stati estratti!";
